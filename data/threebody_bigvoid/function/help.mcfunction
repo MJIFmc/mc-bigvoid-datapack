@@ -1,0 +1,5 @@
+tellraw @s [{"text":"===== Threebody 三体·超高虚空世界 =====","color":"gold","bold":true}]
+tellraw @s [{"text":"世界高度范围: y = -2032 .. 2031 (总高 4064, 1.21.3 上限)","color":"white"}]
+tellraw @s [{"text":"你出生在 (0,120,0) 的 5x5 玻璃平台上, 周围是虚空; 建议创造模式飞行观察。","color":"gray"}]
+tellraw @s [{"text":"/tp 0 500 0   可快速升到高处; 配合三体引力包: /function threebody:help","color":"yellow"}]
+tellraw @s [{"text":"注意: 本世界依赖数据包 threebody_bigvoid, 请勿从存档中删除它。","color":"red"}]
