@@ -1,4 +1,4 @@
-name: Build datapack
+name: Build datapacks
 
 on:
   push:
@@ -9,12 +9,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Build datapacks
-        run: bash build.sh
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: Build all MC versions
+        run: python3 build.py
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: threebody-bigvoid
+          name: threebody-bigvoid-datapacks
           path: |
-            dist/threebody-bigvoid.zip
-            dist/threebody-bigvoid-name-resourcepack.zip
+            dist/*.zip
+            dist/SHA256SUMS.txt

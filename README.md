@@ -1,12 +1,13 @@
 # Threebody Big Void 超高虚空世界数据包
 
-> Minecraft Java **1.21.3** 数据包（`pack_format = 57`）：在创建世界时提供一个**纯虚空 + 世界高度拉满**的世界预设。
+> Minecraft Java 数据包（多版本支持）：**1.20.1 / 1.21.1 / 1.21.3 / 1.21.11 / 26.3 / 26.4-pre-1**
+> 在创建世界时提供一个**纯虚空 + 世界高度拉满**的世界预设。
 >
-> 版本：**v2.0.0**
+> 版本：**v2.2.0**
 
 - 世界预设 ID：`threebody_bigvoid:bigvoid`
 - 主世界：**纯虚空**（flat 生成器 + 空层，生物群系 `the_void`，不生成结构/植被）
-- 世界高度：`min_y = -2032`、`height = 4064`、`logical_height = 4064` —— **1.21.3 的最大可能高度**（方块可放 y = -2032 ~ 2031）
+- 世界高度：`min_y = -2032`、`height = 4064`、`logical_height = 4064` —— **游戏的最大可能高度**（1.18+ 各版本上限一致；方块可放 y = -2032 ~ 2031）
 - 下界 / 末地：保持原版
 - 出生点保护：进世界时自动把世界出生点设到 **(0, 120, 0)**，并在 (0,119,0) 周围铺一个 **5×5 玻璃小平台**，不会出生就掉进虚空
 - 带高度守卫：**把本包启用在一个普通高度的世界里不会有任何改动**（不会改出生点、不会放平台）
@@ -14,13 +15,31 @@
 
 ---
 
+## 支持的 Minecraft 版本（下载哪个包）
+
+各版本差异只在数据包元数据与维度类型（dimension_type）的字段格式；玩法/世界参数完全一致。请下载与你游戏版本对应的 zip：
+
+| Minecraft 版本 | 文件（`dist/`） | 数据包格式 | 备注 |
+|---|---|---|---|
+| 1.20.1 | `threebody-bigvoid-1.20.1.zip` | `pack_format: 15` | 旧目录结构、旧维度类型格式 |
+| 1.21.1 | `threebody-bigvoid-1.21.1.zip` | `pack_format: 48` | |
+| 1.21.3 | `threebody-bigvoid-1.21.3.zip` | `pack_format: 57` | |
+| 1.21.11 | `threebody-bigvoid-1.21.11.zip` | `min_format/max_format: 94` | 新版维度类型（attributes/timelines） |
+| 26.3 | `threebody-bigvoid-26.3.zip` | `min_format/max_format: 121` | 新版维度类型 + 26.x 字段 |
+| 26.4-pre-1 | `threebody-bigvoid-26.4-pre-1.zip` | `min_format/max_format: 128` | 快照版 |
+
+> 也可在 GitHub **Releases**（`v2.2.0`）按版本下载；`dist/SHA256SUMS.txt` 是对应校验和。
+> 世界高度上限 1.18+ 各版本一致（-2032 ~ 2031），因此所有版本的 bigvoid 都是"高度拉满"。
+
+---
+
 ## 安装 / 创建这个世界
 
-> 需要 Minecraft **Java 1.21.3**（1.21.2 同数据包格式，未测试）。
+> 需要 Minecraft Java（按上表选对应版本）。
 
 ### 单人客户端（新建世界）
 
-1. 把 `dist/threebody-bigvoid.zip` 放进游戏目录的 `datapacks` 文件夹（没有就新建）：
+1. 把与你版本对应的 `dist/threebody-bigvoid-<版本>.zip` 放进游戏目录的 `datapacks` 文件夹（没有就新建）：
    - Windows：`%APPDATA%\.minecraft\datapacks\`
    - 本机示例：`F:\MC-environment\.minecraft\versions\1.21.3-Fabric\datapacks\`
    - 也可以不放进文件夹，直接在第 2 步把 zip **拖进**创建界面。
@@ -77,37 +96,37 @@
 
 ## 从源码构建
 
-```bash
-# Linux / macOS（需要 zip）
-./build.sh
+仓库支持**多版本构建**：共用一套世界预设/函数/标签，`build.py` 按 `versions.json` 为各版本生成正确的 `pack.mcmeta` 与 `dimension_type`（1.20.1/1.21.1/1.21.3 旧格式；1.21.11/26.x 新 attributes 格式；26.x 含必填字段），并处理 1.20.1 的复数目录。
 
-# Windows PowerShell
-powershell -ExecutionPolicy Bypass -File build.ps1
+```bash
+python3 build.py                       # 构建全部版本 -> dist/
+python3 build.py --only 26.4-pre-1     # 只构建一个版本
+python3 build.py --list                # 列出可构建版本
 ```
 
-产物：
-
-- `dist/threebody-bigvoid.zip`（数据包本体）
-- `dist/threebody-bigvoid-name-resourcepack.zip`（可选资源包）
-
-修改后把数据包 zip 放进 `world/datapacks/`（已生成过的世界也可以放，但世界预设/高度只对**新建世界**生效）。
+- 需要 **Python 3**（Windows 用 `python build.py`）。`build.sh` / `build.ps1` 是包装脚本。
+- 构建产物：`dist/threebody-bigvoid-<版本>.zip` + `dist/SHA256SUMS.txt`。
+- `overrides/<版本>/` 存放按版本生成的 `dimension_type/void_overworld.json`（都是从该版本官方 vanilla overworld 模板复制后只改高度字段，保证字段 schema 正确）。
+- 修改 `data/` 下的公共内容（world preset、load/help 函数、标签）后重新构建即可对所有版本生效。
 
 ---
 
 ## 目录结构
 
 ```
-threebody-bigvoid/                       ← 数据包根目录（也是 git 仓库根）
-├─ pack.mcmeta
+threebody-bigvoid/                       ← git 仓库根
+├─ pack.mcmeta                           ← 默认（1.21.3）源码元数据，构建时按版本重写
 ├─ data/minecraft/tags/function/load.json
-├─ data/minecraft/tags/worldgen/world_preset/normal.json   ← 让预设出现在「世界类型」列表
+├─ data/minecraft/tags/worldgen/world_preset/normal.json
 ├─ data/threebody_bigvoid/
-│  ├─ dimension_type/void_overworld.json                   ← 高度 4064 / min_y -2032
-│  ├─ worldgen/world_preset/bigvoid.json                   ← 纯虚空主世界 + 原版下界/末地
+│  ├─ dimension_type/void_overworld.json  ← 默认（旧格式）；各版本覆盖在 overrides/
+│  ├─ worldgen/world_preset/bigvoid.json  ← 纯虚空主世界 + 原版下界/末地
 │  └─ function/{load,help}.mcfunction
-├─ optional/name-resourcepack/                             ← 可选：世界类型中文显示名
-├─ dist/                                                   ← 构建产物
-├─ build.sh / build.ps1
+├─ overrides/<版本>/data/.../dimension_type/void_overworld.json  ← 1.20.1/1.21.11/26.x 专用维度类型
+├─ versions.json                         ← 版本 → pack 元数据/布局 的构建矩阵
+├─ build.py / build.sh / build.ps1
+├─ optional/name-resourcepack/           ← 可选：世界类型中文显示名（资源包，1.21.3 格式；其它版本需改 pack.mcmeta）
+├─ dist/                                 ← 各版本 zip + SHA256SUMS
 ├─ README.md
 └─ CHANGELOG.md
 ```
@@ -117,10 +136,10 @@ threebody-bigvoid/                       ← 数据包根目录（也是 git 仓
 ## 常见问题
 
 **Q：「世界类型」列表里没有这个预设？**
-确认创建界面的「数据包」页已经启用本包（在右栏）；本包通过 `data/minecraft/tags/worldgen/world_preset/normal.json` 把自己加进列表。如果还是看不到，检查游戏版本是否 1.21.3。
+确认创建界面的「数据包」页已经启用本包（在右栏）；本包通过 `data/minecraft/tags/worldgen/world_preset/normal.json` 把自己加进列表。如果还是看不到，检查游戏版本与数据包版本是否对应（见上表）。
 
 **Q：列表里显示的是 `generator.threebody_bigvoid.bigvoid`？**
-正常，那是没装可选资源包时的原始翻译 key，功能相同。装可选资源包可显示中文名。
+正常，那是没装可选资源包时的原始翻译 key，功能相同。可选资源包只改显示名（1.21.3 格式，其它版本可自行改资源包 pack.mcmeta）。
 
 **Q：出生在虚空里一直下坠？**
 正常流程会在你进世界前设好出生点 (0,120,0) 和玻璃平台。万一没有（例如手动改过出生点），修复：
@@ -131,7 +150,7 @@ threebody-bigvoid/                       ← 数据包根目录（也是 git 仓
 ```
 
 **Q：能用在别的版本吗？**
-`pack_format=57` 对应 1.21.2 / 1.21.3。更高版本未测试。
+支持列表见上表。其它 1.21.x/26.x 中间版本未逐一测试，通常可用对应世代的构建，但请自行验证。
 
 **Q：能在已有世界把高度拉高吗？**
 本包设计为"新建世界时选择"，不对已有世界生效（避免数据风险）。
